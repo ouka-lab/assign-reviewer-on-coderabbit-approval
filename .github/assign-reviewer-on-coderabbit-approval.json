@@ -1,9 +1,9 @@
 {
-    "$schema": "../schema.json",
-    "rules": [
-        {
-            "rule": "solo",
-            "reviewers": ["@ely-blessing-software"]
-        }
-    ]
+  "$schema": "../schema.json",
+  "rules": [
+    {
+      "rule": "solo",
+      "reviewers": ["@ely-blessing-software"]
+    }
+  ]
 }
