@@ -1,0 +1,9 @@
+{
+  "$schema": "../schema.json",
+  "rules": [
+    {
+      "rule": "solo",
+      "reviewers": ["@ysknsid25"]
+    }
+  ]
+}

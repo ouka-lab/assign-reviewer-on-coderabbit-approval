@@ -797,7 +797,12 @@ async function requestReviewers(context, prNumber, accountIds) {
     body: JSON.stringify({ reviewers: accountIds })
   });
   if (!response.ok) {
-    throw await failure(response, "request reviewers");
+    const error = await failure(response, `request reviewers ${accountIds.join(", ")}`);
+    if (response.status === 422) {
+      error.message += `
+GitHub only accepts review requests for accounts that already have access to ` + "the repository. Check that every account above is a collaborator \u2014 an invitation " + "that has not been accepted yet does not count \u2014 and that each ID is spelled correctly.";
+    }
+    throw error;
   }
 }
 

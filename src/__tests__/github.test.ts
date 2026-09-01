@@ -32,6 +32,15 @@ function stub(responses: Response[]): { context: GitHubContext; calls: Call[] } 
   };
 }
 
+async function errorFrom(promise: Promise<unknown>): Promise<Error> {
+  try {
+    await promise;
+  } catch (error) {
+    return error as Error;
+  }
+  throw new Error("expected the call to reject, but it resolved");
+}
+
 function headerOf(call: Call | undefined, name: string): string | undefined {
   return (call?.init?.headers as Record<string, string> | undefined)?.[name];
 }
@@ -152,6 +161,29 @@ describe("requestReviewers", () => {
       }),
     ]);
     await expect(requestReviewers(context, 7, ["stranger"])).rejects.toThrow(/collaborators/);
+  });
+
+  it("names the accounts it tried, which GitHub's own 422 does not", async () => {
+    const { context } = stub([
+      new Response('{"message":"Reviews may only be requested from collaborators"}', {
+        status: 422,
+        statusText: "Unprocessable Entity",
+      }),
+    ]);
+
+    const error = await errorFrom(requestReviewers(context, 7, ["alice", "bob"]));
+
+    expect(error.message).toContain("alice, bob");
+    expect(error.message).toContain("has not been accepted yet");
+  });
+
+  it("does not add the collaborator hint to unrelated failures", async () => {
+    const { context } = stub([new Response("nope", { status: 500, statusText: "Server Error" })]);
+
+    const error = await errorFrom(requestReviewers(context, 7, ["alice"]));
+
+    expect(error.message).toContain("alice");
+    expect(error.message).not.toContain("collaborator");
   });
 });
 

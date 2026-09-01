@@ -1,0 +1,24 @@
+name: Assign reviewer
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  assign:
+    if: >-
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The checked-out copy of this repository, not a published release.
+      - uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
