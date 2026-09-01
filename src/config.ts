@@ -177,9 +177,6 @@ export function validateAgainstAuthor(
           "on everyone else's pull requests and does nothing on their own.",
       );
     }
-
-    // "solo" has no minimum: zero eligible reviewers is its expected outcome
-    // when the sole maintainer opens the pull request.
   });
 
   if (problems.length > 0) {
