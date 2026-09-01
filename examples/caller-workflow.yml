@@ -1,0 +1,51 @@
+name: Assign reviewers
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  assign:
+    # Guarding at the job level keeps the runner idle for the reviews this
+    # action would ignore anyway — every comment and change request.
+    #
+    # The second condition skips pull requests from forks. That is deliberate,
+    # not a workaround: this event checks out the contributor's merge commit,
+    # so a fork pull request controls the configuration files this action
+    # reads. GitHub withholds write permissions there for exactly that reason.
+    # Never replace this with `pull_request_target` to make forks work.
+    if: >-
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Required: both .coderabbit.yaml and the rules file are read from the
+      # checked-out tree.
+      #
+      # Every `uses:` here is pinned to a commit SHA. A tag can be moved to
+      # point at different code; a SHA cannot. In a job that holds
+      # `pull-requests: write`, that is the difference that matters.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Replace this SHA with the one for the release you want. Find it at:
+      #   https://github.com/ouka-lab/assign-reviewer-on-coderabbit-approval/releases
+      # Dependabot keeps both the SHA and the trailing comment up to date.
+      - uses: ouka-lab/assign-reviewer-on-coderabbit-approval@v1 # replace with a SHA
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+          # Optional, shown with their defaults.
+          # config-file: .github/assign-reviewer-on-coderabbit-approval.json
+          # coderabbit-account-id: 'coderabbitai[bot]'
+
+          # Accounts that never count as a human reviewer and are never
+          # assigned. Anything ending in [bot] is excluded already.
+          # exclude-authors: 'renovate[bot],my-release-bot'
+
+          # Preview the decision without touching the API.
+          # dry-run: 'true'
