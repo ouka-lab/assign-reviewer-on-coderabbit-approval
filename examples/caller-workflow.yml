@@ -35,7 +35,7 @@ jobs:
       # Replace this SHA with the one for the release you want. Find it at:
       #   https://github.com/ouka-lab/assign-reviewer-on-coderabbit-approval/releases
       # Dependabot keeps both the SHA and the trailing comment up to date.
-      - uses: ouka-lab/assign-reviewer-on-coderabbit-approval@v1 # replace with a SHA
+      - uses: ouka-lab/assign-reviewer-on-coderabbit-approval@dc5d84c0e420de4bfd5de3bacdfe7d466231819c # replace with a SHA
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
