@@ -1,7 +1,10 @@
-/**
- * Entry point executed by the composite action.
- *
- * Implementation lands in a later step; this placeholder keeps the toolchain
- * (typecheck / lint) green while the modules below it are built up.
- */
-export {};
+import type { Env } from "./env.ts";
+import { run } from "./run.ts";
+
+try {
+  await run(process.env as Env);
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(`::error::${message}`);
+  process.exit(1);
+}
