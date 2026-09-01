@@ -15,6 +15,7 @@
     "check": "biome check .",
     "check:fix": "biome check --write .",
     "test": "bun test",
+    "test:coverage": "bun test --coverage",
     "build": "bun build src/main.ts --target=bun --outfile=dist/main.js",
     "schema:generate": "bun run scripts/generate-schema.ts"
   },
