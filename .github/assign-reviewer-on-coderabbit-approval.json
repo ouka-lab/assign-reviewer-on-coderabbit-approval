@@ -1,10 +1,10 @@
 {
-    "$schema": "../schema.json",
-    "rules": [
-        {
-            "rule": "random",
-            "needApprovalCount": 1,
-            "reviewers": ["@ysknsid25", "@ely-blessing-software"]
-        }
-    ]
+  "$schema": "../schema.json",
+  "rules": [
+    {
+      "rule": "random",
+      "needApprovalCount": 1,
+      "reviewers": ["@ysknsid25", "@ely-blessing-software"]
+    }
+  ]
 }
