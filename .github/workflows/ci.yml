@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  format:
-    name: Format
+  generate:
+    name: Generate
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -33,13 +33,12 @@ jobs:
       - name: Apply formatting
         run: bun run format
 
-      # Pushing the formatted result back only works for a pull request from a
-      # branch in this repository, opened by a human:
-      #   - fork PRs get a read-only GITHUB_TOKEN, so the push cannot succeed
-      #   - Dependabot-triggered runs also get a restricted token
-      #   - on push events, committing straight to main fights branch protection
-      # Everywhere else we verify instead of writing.
-      - name: Determine whether formatting can be committed
+      - name: Rebuild generated files
+        run: |
+          bun run build
+          bun run schema:generate
+
+      - name: Determine whether the result can be committed
         id: mode
         env:
           EVENT_NAME: ${{ github.event_name }}
@@ -55,24 +54,24 @@ jobs:
             echo "commit=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Commit formatting
+      - name: Commit regenerated files
         if: steps.mode.outputs.commit == 'true'
         uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
         with:
-          commit_message: "style: apply biome format"
+          commit_message: "chore: regenerate formatting, dist and schema"
           commit_options: "--no-verify"
 
-      - name: Verify formatting
+      - name: Verify generated files are current
         if: steps.mode.outputs.commit == 'false'
         run: |
           if ! git diff --exit-code; then
-            echo "::error::Formatting required. Run 'bun run format' and commit the result."
+            echo "::error::Generated files are stale. Run 'bun run format', 'bun run build' and 'bun run schema:generate', then commit the result."
             exit 1
           fi
 
   lint:
     name: Lint
-    needs: format
+    needs: generate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -86,7 +85,7 @@ jobs:
 
   typecheck:
     name: Typecheck
-    needs: format
+    needs: generate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -100,7 +99,7 @@ jobs:
 
   test:
     name: Test
-    needs: format
+    needs: generate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

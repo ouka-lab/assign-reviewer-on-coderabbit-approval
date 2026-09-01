@@ -1,0 +1,93 @@
+name: 'Assign Reviewer on CodeRabbit Approval'
+description: 'Assign human reviewers to a pull request when CodeRabbit approves it'
+author: 'Kanon'
+
+branding:
+  icon: 'user-check'
+  color: 'blue'
+
+inputs:
+  github-token:
+    description: 'GitHub token with `pull-requests: write` permission.'
+    required: true
+  config-file:
+    description: >
+      Path to the rules file, relative to the repository root.
+    required: false
+    default: '.github/assign-reviewer-on-coderabbit-approval.json'
+  coderabbit-config-file:
+    description: >
+      Path to the CodeRabbit configuration to verify, relative to the repository
+      root. When unset, ".coderabbit.yaml" is tried first and ".coderabbit.yml"
+      second.
+    required: false
+    default: ''
+  coderabbit-account-id:
+    description: >
+      Account whose approval triggers assignment. Change this only if your
+      CodeRabbit installation reviews under a different account.
+    required: false
+    default: 'coderabbitai[bot]'
+  exclude-authors:
+    description: >
+      Comma-separated accounts that never count as an involved human reviewer
+      and are never assigned. Accounts ending in "[bot]" are excluded already.
+    required: false
+    default: ''
+  pr-number:
+    description: 'Pull request number.'
+    required: false
+    default: ${{ github.event.pull_request.number }}
+  pr-author:
+    description: 'Pull request author account ID.'
+    required: false
+    default: ${{ github.event.pull_request.user.login }}
+  repository:
+    description: 'Target repository in "owner/repo" format.'
+    required: false
+    default: ${{ github.repository }}
+  bun-version:
+    description: 'Bun version used to run this action.'
+    required: false
+    default: '1.4.0'
+  dry-run:
+    description: 'When "true", log the planned assignment without calling the API.'
+    required: false
+    default: 'false'
+
+outputs:
+  assigned-reviewers:
+    description: 'Comma-separated accounts that were requested as reviewers.'
+    value: ${{ steps.run.outputs.assigned-reviewers }}
+  skipped-reason:
+    description: >
+      Empty when reviewers were assigned, otherwise why nothing happened:
+      "not-approved", "not-coderabbit-approval", "already-involved", or
+      "nobody-to-assign".
+    value: ${{ steps.run.outputs.skipped-reason }}
+
+runs:
+  using: 'composite'
+  steps:
+    # Bun is not preinstalled on GitHub-hosted runners. Setting it up here
+    # rather than asking callers to means their workflow stays a single step.
+    - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      with:
+        bun-version: ${{ inputs.bun-version }}
+
+    - id: run
+      shell: bash
+      env:
+        INPUT_GITHUB_TOKEN: ${{ inputs.github-token }}
+        INPUT_CONFIG_FILE: ${{ inputs.config-file }}
+        INPUT_CODERABBIT_CONFIG_FILE: ${{ inputs.coderabbit-config-file }}
+        INPUT_CODERABBIT_ACCOUNT_ID: ${{ inputs.coderabbit-account-id }}
+        INPUT_EXCLUDE_AUTHORS: ${{ inputs.exclude-authors }}
+        INPUT_PR_NUMBER: ${{ inputs.pr-number }}
+        INPUT_PR_AUTHOR: ${{ inputs.pr-author }}
+        INPUT_REPOSITORY: ${{ inputs.repository }}
+        INPUT_DRY_RUN: ${{ inputs.dry-run }}
+        EVENT_REVIEW_STATE: ${{ github.event.review.state }}
+        EVENT_REVIEW_AUTHOR: ${{ github.event.review.user.login }}
+        GITHUB_WORKSPACE: ${{ github.workspace }}
+      run: bun "${GITHUB_ACTION_PATH}/dist/main.js"
