@@ -113,6 +113,15 @@ export async function requestReviewers(
   });
 
   if (!response.ok) {
-    throw await failure(response, "request reviewers");
+    const error = await failure(response, `request reviewers ${accountIds.join(", ")}`);
+    // GitHub reports this without naming the account, which leaves the reader
+    // guessing which entry in their configuration is at fault.
+    if (response.status === 422) {
+      error.message +=
+        "\nGitHub only accepts review requests for accounts that already have access to " +
+        "the repository. Check that every account above is a collaborator — an invitation " +
+        "that has not been accepted yet does not count — and that each ID is spelled correctly.";
+    }
+    throw error;
   }
 }
