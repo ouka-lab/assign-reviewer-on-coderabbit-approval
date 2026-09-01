@@ -2,8 +2,7 @@
     "$schema": "../schema.json",
     "rules": [
         {
-            "rule": "random",
-            "needApprovalCount": 1,
+            "rule": "all",
             "reviewers": ["@ysknsid25", "@ely-blessing-software"]
         }
     ]
