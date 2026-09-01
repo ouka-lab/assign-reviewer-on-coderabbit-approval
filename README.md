@@ -5,7 +5,7 @@
 [![CI](https://github.com/ouka-lab/assign-reviewer-on-coderabbit-approval/actions/workflows/ci.yml/badge.svg)](https://github.com/ouka-lab/assign-reviewer-on-coderabbit-approval/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/ouka-lab/assign-reviewer-on-coderabbit-approval?label=release&color=blue)](https://github.com/ouka-lab/assign-reviewer-on-coderabbit-approval/releases)
 [![Marketplace](https://img.shields.io/badge/GitHub%20Marketplace-assign--reviewer--on--coderabbit--approval-2ea44f?logo=github)](https://github.com/marketplace/actions/assign-reviewer-on-coderabbit-approval)
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/ouka-lab/assign-reviewer-on-coderabbit-approval&?utm_source=oss&utm_medium=github&utm_campaign=ouka-lab%2Fassign-reviewer-on-coderabbit-approval&&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/ouka-lab/assign-reviewer-on-coderabbit-approval?utm_source=oss&utm_medium=github&utm_campaign=ouka-lab%2Fassign-reviewer-on-coderabbit-approval&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 [![GitHub last commit](https://img.shields.io/github/last-commit/ouka-lab/assign-reviewer-on-coderabbit-approval)](https://github.com/ouka-lab/assign-reviewer-on-coderabbit-approval/commits/main)
 [![License: MIT](https://img.shields.io/github/license/ouka-lab/assign-reviewer-on-coderabbit-approval)](LICENSE)
 
