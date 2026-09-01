@@ -289,17 +289,14 @@ trying the action out — but it means you run whatever that tag points to today
 
 ```bash
 bun install
-bun run typecheck   # tsc --noEmit
-bun run lint        # biome lint
-bun run format      # biome format --write
-bun test            # coverage thresholds are enforced
-bun run build       # regenerates dist/main.js
-bun run schema:generate
+bun run format && bun run lint && bun run typecheck && bun test
 ```
 
 `dist/main.js` and `schema.json` are generated and committed — GitHub never runs
-an install step for an action, so the bundle has to be in the repository. CI
-regenerates both and fails if what you committed is out of date.
+an install step for an action, so the bundle has to be in the repository.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide, including how review
+works on this repository.
 
 ## License
 
