@@ -2,8 +2,8 @@
     "$schema": "../schema.json",
     "rules": [
         {
-            "rule": "all",
-            "reviewers": ["@ysknsid25", "@ely-blessing-software"]
+            "rule": "solo",
+            "reviewers": ["@ely-blessing-software"]
         }
     ]
 }
