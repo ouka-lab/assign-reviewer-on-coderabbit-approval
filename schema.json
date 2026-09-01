@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/ouka-lab/assign-reviewer-on-coderabbit-approval/main/schema.json",
+  "title": "assign-reviewer-on-coderabbit-approval configuration",
+  "description": "Rules describing which human reviewers to assign when CodeRabbit approves a pull request.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "rule": {
+                "const": "all"
+              },
+              "reviewers": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^@?[A-Za-z\\d](?:[A-Za-z\\d]|-(?=[A-Za-z\\d])){0,38}$"
+                },
+                "minItems": 1,
+                "description": "GitHub account IDs eligible to review. A leading \"@\" is optional. The pull request author is always removed from this list before assignment."
+              }
+            },
+            "required": [
+              "rule",
+              "reviewers"
+            ],
+            "additionalProperties": false,
+            "description": "Assign every reviewer in the list."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "rule": {
+                "const": "random"
+              },
+              "needApprovalCount": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "How many human approvals this pull request needs, excluding CodeRabbit. That many reviewers are picked at random from `reviewers`."
+              },
+              "reviewers": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^@?[A-Za-z\\d](?:[A-Za-z\\d]|-(?=[A-Za-z\\d])){0,38}$"
+                },
+                "minItems": 1,
+                "description": "GitHub account IDs eligible to review. A leading \"@\" is optional. The pull request author is always removed from this list before assignment."
+              }
+            },
+            "required": [
+              "rule",
+              "needApprovalCount",
+              "reviewers"
+            ],
+            "additionalProperties": false,
+            "description": "Assign `needApprovalCount` reviewers picked at random from the list."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "rule": {
+                "const": "solo"
+              },
+              "reviewers": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^@?[A-Za-z\\d](?:[A-Za-z\\d]|-(?=[A-Za-z\\d])){0,38}$"
+                },
+                "minItems": 1,
+                "description": "GitHub account IDs eligible to review. A leading \"@\" is optional. The pull request author is always removed from this list before assignment."
+              }
+            },
+            "required": [
+              "rule",
+              "reviewers"
+            ],
+            "additionalProperties": false,
+            "description": "For repositories with a single maintainer. Assigns the maintainer on other people's pull requests, and does nothing on the maintainer's own — having nobody left to assign is expected here, not an error."
+          }
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 1,
+      "description": "\"rules\" must contain exactly one rule in this version. It is an array because path-scoped rules are planned: a future \"paths\" field will let each rule target different files. Until then every rule would match every pull request, which makes multiple rules ambiguous — \"all\" and \"random\" would contradict each other about how many approvals a pull request needs. Pick a single rule: \"all\", \"random\", or \"solo\"."
+    }
+  },
+  "required": [
+    "rules"
+  ],
+  "additionalProperties": false
+}
