@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: .bun-version
+
+      - run: bun install --frozen-lockfile
+
+      - name: Apply formatting
+        run: bun run format
+
+      # Pushing the formatted result back only works for a pull request from a
+      # branch in this repository, opened by a human:
+      #   - fork PRs get a read-only GITHUB_TOKEN, so the push cannot succeed
+      #   - Dependabot-triggered runs also get a restricted token
+      #   - on push events, committing straight to main fights branch protection
+      # Everywhere else we verify instead of writing.
+      - name: Determine whether formatting can be committed
+        id: mode
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ] \
+            && [ "$HEAD_REPO" = "$REPO" ] \
+            && [ "$ACTOR" != "dependabot[bot]" ]; then
+            echo "commit=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "commit=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit formatting
+        if: steps.mode.outputs.commit == 'true'
+        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
+        with:
+          commit_message: "style: apply biome format"
+          commit_options: "--no-verify"
+
+      - name: Verify formatting
+        if: steps.mode.outputs.commit == 'false'
+        run: |
+          if ! git diff --exit-code; then
+            echo "::error::Formatting required. Run 'bun run format' and commit the result."
+            exit 1
+          fi
+
+  lint:
+    name: Lint
+    needs: format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: .bun-version
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+
+  typecheck:
+    name: Typecheck
+    needs: format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: .bun-version
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck
+
+  test:
+    name: Test
+    needs: format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: .bun-version
+      - run: bun install --frozen-lockfile
+      - run: bun test:coverage

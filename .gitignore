@@ -1,0 +1,7 @@
+node_modules/
+coverage/
+*.log
+.DS_Store
+
+# dist/ is intentionally NOT ignored: GitHub does not run `bun install` for
+# actions, so the bundled entrypoint must be committed. See README.

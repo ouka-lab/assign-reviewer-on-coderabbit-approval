@@ -1,0 +1,15 @@
+[test]
+coverage = true
+
+# WARNING: the granular keys must be PLURAL. Bun silently ignores
+# `{ line = ..., function = ... }` (singular), which disables threshold
+# enforcement entirely without any warning. Verified against Bun 1.4.0.
+coverageThreshold = { lines = 0.9, functions = 0.9 }
+
+coverageSkipTestFiles = true
+
+# src/main.ts is the thin entrypoint that only wires process.env into run()
+# and handles the top-level rejection; there is nothing to unit test in it.
+coveragePathIgnorePatterns = ["src/main.ts"]
+
+coverageReporter = ["text"]

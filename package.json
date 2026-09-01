@@ -1,0 +1,30 @@
+{
+  "name": "assign-reviewer-on-coderabbit-approval",
+  "version": "0.1.0",
+  "description": "Assign human reviewers when CodeRabbit approves a pull request",
+  "license": "MIT",
+  "author": "Kanon",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "test": "bun test",
+    "build": "bun build src/main.ts --target=bun --outfile=dist/main.js",
+    "schema:generate": "bun run scripts/generate-schema.ts"
+  },
+  "dependencies": {
+    "valibot": "^1.4.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.11",
+    "@types/bun": "^1.4.0",
+    "@valibot/to-json-schema": "^1.7.1",
+    "typescript": "^7.0.2"
+  }
+}
