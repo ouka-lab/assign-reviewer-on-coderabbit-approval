@@ -75,7 +75,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: ouka-lab/assign-reviewer-on-coderabbit-approval@v1
+      - uses: ouka-lab/assign-reviewer-on-coderabbit-approval@dc5d84c0e420de4bfd5de3bacdfe7d466231819c #v1.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
