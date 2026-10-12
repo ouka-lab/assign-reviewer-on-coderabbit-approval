@@ -23,9 +23,9 @@
     "valibot": "^1.4.2"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.11",
-    "@types/bun": "^1.4.0",
-    "@valibot/to-json-schema": "^1.7.1",
+    "@biomejs/biome": "^2.5.15",
+    "@types/bun": "^1.4.2",
+    "@valibot/to-json-schema": "^1.8.0",
     "typescript": "^7.0.2"
   }
 }
