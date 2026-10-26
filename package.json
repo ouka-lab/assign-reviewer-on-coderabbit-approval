@@ -20,11 +20,11 @@
     "schema:generate": "bun run scripts/generate-schema.ts"
   },
   "dependencies": {
-    "valibot": "^1.4.2"
+    "valibot": "^1.5.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
-    "@types/bun": "^1.4.2",
+    "@types/bun": "^1.4.4",
     "@valibot/to-json-schema": "^1.8.0",
     "typescript": "^7.0.2"
   }

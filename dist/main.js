@@ -109,26 +109,22 @@ function _addIssue(context, label, dataset, config$1, other) {
   else
     dataset.issues = [issue];
 }
-var _standardCache = /* @__PURE__ */ new WeakMap;
-function _getStandardProps(context) {
-  let cached = _standardCache.get(context);
-  if (!cached) {
-    cached = {
-      version: 1,
-      vendor: "valibot",
-      validate(value$1) {
-        return context["~run"]({ value: value$1 }, /* @__PURE__ */ getGlobalConfig());
-      }
-    };
-    _standardCache.set(context, cached);
-  }
-  return cached;
+function _isSameValueZero(value1, value2) {
+  return value1 === value2 || Number.isNaN(value1) && Number.isNaN(value2);
 }
 function _joinExpects(values$1, separator) {
   const list = [...new Set(values$1)];
   if (list.length > 1)
     return `(${list.join(` ${separator} `)})`;
   return list[0] ?? "never";
+}
+function _standardSchema(schema) {
+  schema["~standard"] = {
+    version: 1,
+    vendor: "valibot",
+    validate: (value$1) => schema["~run"]({ value: value$1 }, /* @__PURE__ */ getGlobalConfig())
+  };
+  return schema;
 }
 function getDotPath(issue) {
   if (issue.path) {
@@ -241,7 +237,7 @@ function getDefault(schema, dataset, config$1) {
   return typeof schema.default === "function" ? schema.default(dataset, config$1) : schema.default;
 }
 function array(item, message$1) {
-  return {
+  return _standardSchema({
     kind: "schema",
     type: "array",
     reference: array,
@@ -249,9 +245,6 @@ function array(item, message$1) {
     async: false,
     item,
     message: message$1,
-    get "~standard"() {
-      return /* @__PURE__ */ _getStandardProps(this);
-    },
     "~run"(dataset, config$1) {
       const input = dataset.value;
       if (Array.isArray(input)) {
@@ -290,10 +283,10 @@ function array(item, message$1) {
         _addIssue(this, "type", dataset, config$1);
       return dataset;
     }
-  };
+  });
 }
 function literal(literal_, message$1) {
-  return {
+  return _standardSchema({
     kind: "schema",
     type: "literal",
     reference: literal,
@@ -301,29 +294,23 @@ function literal(literal_, message$1) {
     async: false,
     literal: literal_,
     message: message$1,
-    get "~standard"() {
-      return /* @__PURE__ */ _getStandardProps(this);
-    },
     "~run"(dataset, config$1) {
-      if (dataset.value === this.literal)
+      if (/* @__PURE__ */ _isSameValueZero(dataset.value, this.literal))
         dataset.typed = true;
       else
         _addIssue(this, "type", dataset, config$1);
       return dataset;
     }
-  };
+  });
 }
 function number(message$1) {
-  return {
+  return _standardSchema({
     kind: "schema",
     type: "number",
     reference: number,
     expects: "number",
     async: false,
     message: message$1,
-    get "~standard"() {
-      return /* @__PURE__ */ _getStandardProps(this);
-    },
     "~run"(dataset, config$1) {
       if (typeof dataset.value === "number" && !isNaN(dataset.value))
         dataset.typed = true;
@@ -331,10 +318,10 @@ function number(message$1) {
         _addIssue(this, "type", dataset, config$1);
       return dataset;
     }
-  };
+  });
 }
 function optional(wrapped, default_) {
-  return {
+  return _standardSchema({
     kind: "schema",
     type: "optional",
     reference: optional,
@@ -342,9 +329,6 @@ function optional(wrapped, default_) {
     async: false,
     wrapped,
     default: default_,
-    get "~standard"() {
-      return /* @__PURE__ */ _getStandardProps(this);
-    },
     "~run"(dataset, config$1) {
       if (dataset.value === undefined) {
         if (this.default !== undefined)
@@ -356,10 +340,10 @@ function optional(wrapped, default_) {
       }
       return this.wrapped["~run"](dataset, config$1);
     }
-  };
+  });
 }
 function strictObject(entries$1, message$1) {
-  return {
+  return _standardSchema({
     kind: "schema",
     type: "strict_object",
     reference: strictObject,
@@ -367,9 +351,6 @@ function strictObject(entries$1, message$1) {
     async: false,
     entries: entries$1,
     message: message$1,
-    get "~standard"() {
-      return /* @__PURE__ */ _getStandardProps(this);
-    },
     "~run"(dataset, config$1) {
       const input = dataset.value;
       if (input && typeof input === "object") {
@@ -425,7 +406,7 @@ function strictObject(entries$1, message$1) {
         }
         if (!dataset.issues || !config$1.abortEarly) {
           for (const key in input)
-            if (!(key in this.entries)) {
+            if (!Object.prototype.hasOwnProperty.call(this.entries, key)) {
               _addIssue(this, "key", dataset, config$1, {
                 input: key,
                 expected: "never",
@@ -444,19 +425,16 @@ function strictObject(entries$1, message$1) {
         _addIssue(this, "type", dataset, config$1);
       return dataset;
     }
-  };
+  });
 }
 function string(message$1) {
-  return {
+  return _standardSchema({
     kind: "schema",
     type: "string",
     reference: string,
     expects: "string",
     async: false,
     message: message$1,
-    get "~standard"() {
-      return /* @__PURE__ */ _getStandardProps(this);
-    },
     "~run"(dataset, config$1) {
       if (typeof dataset.value === "string")
         dataset.typed = true;
@@ -464,10 +442,10 @@ function string(message$1) {
         _addIssue(this, "type", dataset, config$1);
       return dataset;
     }
-  };
+  });
 }
 function variant(key, options, message$1) {
-  return {
+  return _standardSchema({
     kind: "schema",
     type: "variant",
     reference: variant,
@@ -476,9 +454,6 @@ function variant(key, options, message$1) {
     key,
     options,
     message: message$1,
-    get "~standard"() {
-      return /* @__PURE__ */ _getStandardProps(this);
-    },
     "~run"(dataset, config$1) {
       const input = dataset.value;
       if (input && typeof input === "object") {
@@ -539,15 +514,12 @@ function variant(key, options, message$1) {
         _addIssue(this, "type", dataset, config$1);
       return dataset;
     }
-  };
+  });
 }
 function pipe(...pipe$1) {
-  return {
+  return _standardSchema({
     ...pipe$1[0],
     pipe: pipe$1,
-    get "~standard"() {
-      return /* @__PURE__ */ _getStandardProps(this);
-    },
     "~run"(dataset, config$1) {
       for (const item of pipe$1)
         if (item.kind !== "metadata") {
@@ -560,7 +532,7 @@ function pipe(...pipe$1) {
         }
       return dataset;
     }
-  };
+  });
 }
 function safeParse(schema, input, config$1) {
   const dataset = schema["~run"]({ value: input }, /* @__PURE__ */ getGlobalConfig(config$1));
